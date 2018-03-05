@@ -1,0 +1,31 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 25
+    buildToolsVersion "25.0.2"
+
+    defaultConfig {
+        applicationId "com.tencent.camerademo"
+        minSdkVersion 18
+        targetSdkVersion 22
+        versionCode 1
+        versionName "1.0"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+    compile fileTree(include: ['*.jar'], dir: 'libs')
+    compile 'com.android.support:appcompat-v7:25.3.1'
+    compile 'com.tencent.ilivesdk:ilivesdk:1.7.2'
+    compile('com.serenegiant:common:1.5.20') {
+        exclude module: 'support-v4'
+    }
+    compile(name: 'uvc_camera', ext: 'aar')
+    compile(name: 'usb_camera_com', ext: 'aar')
+}
