@@ -23,7 +23,7 @@ import java.util.List;
 /**
  * Created by xkazer on 2017/11/23.
  */
-public class UVCCameraHelper{
+public class UVCCameraHelper {
     private final static int CAMERA_WIDTH = 480;
     private final static int CAMERA_HEIGHT = 640;
     private final String TAG = "[DEV]UVCCameraHelper";
@@ -36,23 +36,23 @@ public class UVCCameraHelper{
     private final USBMonitor.OnDeviceConnectListener deviceConnectListener = new USBMonitor.OnDeviceConnectListener() {
         @Override
         public void onAttach(UsbDevice usbDevice) {
-            Log.v(TAG, "onAttach->"+usbDevice.getDeviceName());
+            Log.v(TAG, "onAttach->" + usbDevice.getDeviceName());
             usbMonitor.requestPermission(usbDevice);
         }
 
         @Override
         public void onDettach(UsbDevice usbDevice) {
-            Log.v(TAG, "onDettach->"+usbDevice.getDeviceName());
+            Log.v(TAG, "onDettach->" + usbDevice.getDeviceName());
         }
 
         @Override
         public void onConnect(UsbDevice usbDevice, final USBMonitor.UsbControlBlock usbControlBlock, boolean b) {
-            Log.v(TAG, "onConnect->"+usbDevice.getDeviceName());
+            Log.v(TAG, "onConnect->" + usbDevice.getDeviceName());
             int index = findUVCCameraIndexByName(usbDevice.getDeviceName());
-            if (-1 == index){
+            if (-1 == index) {
                 index = findUVCCameraIndexByName("");
             }
-            if (-1 != index){
+            if (-1 != index) {
                 UVCCameraData uvcCameraData = uvcCameraDatas.get(index);
                 uvcCameraData.setName(usbDevice.getDeviceName());
                 if (null == uvcCameraData.getUsbCtrlBlock()) {
@@ -66,31 +66,31 @@ public class UVCCameraHelper{
 
         @Override
         public void onDisconnect(UsbDevice usbDevice, USBMonitor.UsbControlBlock usbControlBlock) {
-            Log.v(TAG, "onDisconnect->"+usbDevice.getDeviceName());
+            Log.v(TAG, "onDisconnect->" + usbDevice.getDeviceName());
             int index = findUVCCameraIndexByName(usbDevice.getDeviceName());
-            if (-1 != index){
+            if (-1 != index) {
                 realseUVCCamera(uvcCameraDatas.get(index));
             }
         }
 
         @Override
         public void onCancel(UsbDevice usbDevice) {
-            Log.v(TAG, "onCancel->"+usbDevice.getDeviceName());
+            Log.v(TAG, "onCancel->" + usbDevice.getDeviceName());
         }
     };
 
-    public UVCCameraHelper(Context context, CameraView view){
+    public UVCCameraHelper(Context context, CameraView view) {
         cameraView = view;
         usbMonitor = new USBMonitor(context, deviceConnectListener);
         final List<DeviceFilter> filters = DeviceFilter.getDeviceFilters(cameraView.getActivity(), R.xml.device_filter);
         usbMonitor.setDeviceFilter(filters);
     }
 
-    public void onResume(){
+    public void onResume() {
         usbMonitor.register();
         List<UsbDevice> devices = usbMonitor.getDeviceList();
-        if (null != devices){
-            for (UsbDevice device : devices){
+        if (null != devices) {
+            for (UsbDevice device : devices) {
 /*                int index = findUVCCameraIndexByName(device.getDeviceName());
                 if (-1 != index){
                     if (null != uvcCameraDatas.get(index).getUsbCtrlBlock()) {
@@ -102,17 +102,17 @@ public class UVCCameraHelper{
         }
     }
 
-    public void onPause(){
+    public void onPause() {
         usbMonitor.unregister();
     }
 
-    public int getCameraNumber(){
+    public int getCameraNumber() {
         return usbMonitor.getDeviceCount();
     }
 
-    public boolean openCamera(final int index){
+    public boolean openCamera(final int index) {
         UVCCameraData uvcCameraData = uvcCameraDatas.get(index);
-        try{
+        try {
             uvcCameraData.getUvcCamera().open(uvcCameraData.getUsbCtrlBlock());
             uvcCameraData.getUvcCamera().setPreviewSize(UVCCamera.DEFAULT_PREVIEW_WIDTH,
                     UVCCamera.DEFAULT_PREVIEW_HEIGHT,
@@ -124,20 +124,26 @@ public class UVCCameraHelper{
             uvcCameraData.getUvcCamera().setFrameCallback(new IFrameCallback() {
                 @Override
                 public void onFrame(ByteBuffer byteBuffer) {
+                    /*int len = byteBuffer.capacity();
+                    byte[] yuv = new byte[len];
+                    byte[] newYuv = new byte[yuv.length];
+                    System.arraycopy(yuv, 0, newYuv, 0, yuv.length);
+                    ByteBuffer newFrame = ByteBuffer.wrap(yuv);
+                    cameraView.onCaptureFrame(byteBuffer);*/
                     processFrameData(index, byteBuffer);
                 }
             }, UVCCamera.PIXEL_FORMAT_NV21);
             uvcCameraData.getUvcCamera().startPreview();
             uvcCameraData.setEnable(true);
             return true;
-        }catch (Exception e){
-            Log.e(TAG, "openCamera->failed: "+e.toString());
+        } catch (Exception e) {
+            Log.e(TAG, "openCamera->failed: " + e.toString());
             return false;
         }
     }
 
-    public void bindViewInterface(final int index, UVCCameraTextureView uvcCameraTextureView){
-        while (uvcCameraDatas.size()-1 < index){
+    public void bindViewInterface(final int index, UVCCameraTextureView uvcCameraTextureView) {
+        while (uvcCameraDatas.size() - 1 < index) {
             uvcCameraDatas.add(new UVCCameraData());
         }
         uvcCameraTextureView.setSurfaceTextureListener(new TextureView.SurfaceTextureListener() {
@@ -146,7 +152,7 @@ public class UVCCameraHelper{
                 UVCCameraData uvcCameraData = uvcCameraDatas.get(index);
                 uvcCameraData.setSurface(new Surface(surfaceTexture));
                 //openCamera(index);
-                Log.v(TAG, "onSurfaceTextureAvailable->"+index+":"+uvcCameraData.toString());
+                Log.v(TAG, "onSurfaceTextureAvailable->" + index + ":" + uvcCameraData.toString());
             }
 
             @Override
@@ -162,25 +168,25 @@ public class UVCCameraHelper{
             public void onSurfaceTextureUpdated(SurfaceTexture surface) {
             }
         });
-        uvcCameraTextureView.setAspectRatio(UVCCamera.DEFAULT_PREVIEW_WIDTH*1.0f / UVCCamera.DEFAULT_PREVIEW_HEIGHT);
+        uvcCameraTextureView.setAspectRatio(UVCCamera.DEFAULT_PREVIEW_WIDTH * 1.0f / UVCCamera.DEFAULT_PREVIEW_HEIGHT);
         uvcCameraDatas.get(index).setCameraViewInterface(uvcCameraTextureView);
     }
 
-    public void setPushCamera(int cameraId){
+    public void setPushCamera(int cameraId) {
         pushIndex = cameraId;
     }
 
-    public void onDestory(){
-        for (int i=0; i<uvcCameraDatas.size(); i++){
+    public void onDestory() {
+        for (int i = 0; i < uvcCameraDatas.size(); i++) {
             UVCCameraData uvcCameraData = uvcCameraDatas.get(i);
-            if (uvcCameraData.isEnable()){
+            if (uvcCameraData.isEnable()) {
                 realseUVCCamera(uvcCameraData);
             }
         }
     }
 
-    private int findUVCCameraIndexByName(String name){
-        for (int i=0; i<uvcCameraDatas.size(); i++){
+    private int findUVCCameraIndexByName(String name) {
+        for (int i = 0; i < uvcCameraDatas.size(); i++) {
             if (uvcCameraDatas.get(i).getName().equals(name)) {
                 return i;
             }
@@ -188,20 +194,20 @@ public class UVCCameraHelper{
         return -1;
     }
 
-    private void realseUVCCamera(UVCCameraData uvcCameraData){
+    private void realseUVCCamera(UVCCameraData uvcCameraData) {
         if (uvcCameraData.isEnable()) {
             uvcCameraData.getUvcCamera().setFrameCallback(null, UVCCamera.PIXEL_FORMAT_NV21);
             uvcCameraData.getUvcCamera().close();
             uvcCameraData.setEnable(false);
         }
-        if (null != uvcCameraData.getSurface()){
+        if (null != uvcCameraData.getSurface()) {
             uvcCameraData.getSurface().release();
             uvcCameraData.setSurface(null);
         }
         uvcCameraData.setUsbCtrlBlock(null);
     }
 
-    private void swapNV21toI420(byte[] nv21bytes, byte[] i420bytes, int width,int height){
+    private void swapNV21toI420(byte[] nv21bytes, byte[] i420bytes, int width, int height) {
         int nLenY = width * height;
         int nLenU = nLenY / 4;
 
@@ -212,7 +218,7 @@ public class UVCCameraHelper{
         }
     }
 
-    private void processFrameData(int index, ByteBuffer frame){
+    private void processFrameData(int index, ByteBuffer frame) {
         if (index == pushIndex) {
             byte[] data = new byte[frame.capacity()];
             byte[] i420Data = new byte[frame.capacity()];

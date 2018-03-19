@@ -16,6 +16,8 @@ import com.tencent.camerademo.presenter.view.CameraView;
 import com.tencent.camerademo.presenter.view.SDKView;
 import com.tencent.ilivesdk.view.AVRootView;
 
+import java.nio.ByteBuffer;
+
 
 /**
  * Created by xkazer on 2017/11/22.
@@ -107,6 +109,11 @@ public class MainActivity extends Activity implements CameraView, SDKView{
         if (sdkHelper.isEnter()){
             sdkHelper.fillCameraData(data, length, width, heigth, angle);
         }
+    }
+
+    @Override
+    public void onCaptureFrame(ByteBuffer frame) {
+
     }
 
     @Override

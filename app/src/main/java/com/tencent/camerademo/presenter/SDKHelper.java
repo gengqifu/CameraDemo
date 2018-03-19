@@ -65,7 +65,8 @@ public class SDKHelper implements ILiveLoginManager.TILVBStatusListener {
         ILiveRoomOption option = new ILiveRoomOption("")
                 .imsupport(false)
                 .autoCamera(false)
-                .autoMic(false);
+                .autoMic(true)
+                .autoSpeaker(true);
         ILiveRoomManager.getInstance().joinRoom(roomid, option, new ILiveCallBack() {
             @Override
             public void onSuccess(Object data) {
