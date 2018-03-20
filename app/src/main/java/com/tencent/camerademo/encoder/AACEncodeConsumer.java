@@ -36,7 +36,7 @@ public class AACEncodeConsumer extends Thread{
     private static final long TIMES_OUT = 1000;
     private static final int SAMPLE_RATE = 48000;//8000;     // 采样率
     private static final int BIT_RATE = 16000;       // 比特率
-    private static final int BUFFER_SIZE = 3840;//1920;     // 最小缓存
+    private static final int BUFFER_SIZE = 8192;//3840;//1920;     // 最小缓存
     private int outChannel = 1;
     private int bitRateForLame = 32;
     private int qaulityDegree = 7;
@@ -52,6 +52,8 @@ public class AACEncodeConsumer extends Thread{
     private long prevPresentationTimes = 0;
     private WeakReference<Mp4MediaMuxer> mMuxerRef;
     private MediaFormat newFormat;
+    final int millisPerframe = 1000 / 20;
+    long lastPush = 0;
 
     /**
      * There are 13 supported frequencies by ADTS.
@@ -124,7 +126,7 @@ public class AACEncodeConsumer extends Thread{
                     data.clear();*/
                     Bundle bundle = msg.getData();
                     byte[] audio = bundle.getByteArray("av");
-                    encodeBytes(audio,audio.length);
+                    //encodeBytes(audio,audio.length);
                     break;
                 default:
                     break;
@@ -154,19 +156,72 @@ public class AACEncodeConsumer extends Thread{
             if(readBytes > 0){
                 encodeBytes(audioBuffer,readBytes);
             }*/
+            encodeBytes();
         }
         // 停止音频采集、编码
         stopMediaCodec();
         //stopAudioRecord();
     }
 
+    public void setAudioData(byte[] audioBuf, int readBytes) {
+        if (! isEncoderStart)
+            return;
+        try {
+            if (lastPush == 0) {
+                lastPush = System.currentTimeMillis();
+            }
+            long time = System.currentTimeMillis() - lastPush;
+            if (time >= 0) {
+                time = millisPerframe - time;
+                if (time > 0)
+                    Thread.sleep(time / 2);
+            }
+            // 将数据写入编码器
+            feedMediaCodecData(audioBuf, readBytes);
 
-    @TargetApi(21)
-    public void encodeBytes(byte[] audioBuf, int readBytes) {
+            if (time > 0)
+                Thread.sleep(time / 2);
+            lastPush = System.currentTimeMillis();
+        } catch (InterruptedException ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    private void feedMediaCodecData(byte[] audioBuf, int readBytes) {
         if (!isEncoderStart) {
             return;
         }
         ByteBuffer[] inputBuffers = mAudioEncoder.getInputBuffers();
+        //返回编码器的一个输入缓存区句柄，-1表示当前没有可用的输入缓存区
+        int inputBufferIndex = mAudioEncoder.dequeueInputBuffer(TIMES_OUT);
+        if(inputBufferIndex >= 0) {
+            // 绑定一个被空的、可写的输入缓存区inputBuffer到客户端
+            ByteBuffer inputBuffer = null;
+            if (!isLollipop()) {
+                inputBuffer = inputBuffers[inputBufferIndex];
+            } else {
+                inputBuffer = mAudioEncoder.getInputBuffer(inputBufferIndex);
+            }
+            // 向输入缓存区写入有效原始数据，并提交到编码器中进行编码处理
+            if (audioBuf == null || readBytes <= 0) {
+                mAudioEncoder.queueInputBuffer(inputBufferIndex, 0, 0, getPTSUs(), MediaCodec.BUFFER_FLAG_END_OF_STREAM);
+            } else {
+                inputBuffer.clear();
+                inputBuffer.put(audioBuf);
+                inputBuffer.clear();
+                mAudioEncoder.queueInputBuffer(inputBufferIndex, 0, readBytes, getPTSUs(), 0);
+            }
+        }
+    }
+
+
+    @TargetApi(21)
+    //public void encodeBytes(byte[] audioBuf, int readBytes) {
+    private void encodeBytes() {
+        if (!isEncoderStart) {
+            return;
+        }
+        /*ByteBuffer[] inputBuffers = mAudioEncoder.getInputBuffers();
         ByteBuffer[] outputBuffers = mAudioEncoder.getOutputBuffers();
         //返回编码器的一个输入缓存区句柄，-1表示当前没有可用的输入缓存区
         int inputBufferIndex = mAudioEncoder.dequeueInputBuffer(TIMES_OUT);
@@ -186,8 +241,9 @@ public class AACEncodeConsumer extends Thread{
                 inputBuffer.put(audioBuf);
                 mAudioEncoder.queueInputBuffer(inputBufferIndex,0,readBytes,getPTSUs(),0);
             }
-        }
+        }*/
 
+        ByteBuffer[] outputBuffers = mAudioEncoder.getOutputBuffers();
         // 返回一个输出缓存区句柄，当为-1时表示当前没有可用的输出缓存区
         // mBufferInfo参数包含被编码好的数据，timesOut参数为超时等待的时间
         MediaCodec.BufferInfo  mBufferInfo = new MediaCodec.BufferInfo();

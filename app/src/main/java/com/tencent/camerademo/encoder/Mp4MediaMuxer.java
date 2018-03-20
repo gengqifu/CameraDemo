@@ -100,7 +100,7 @@ public class Mp4MediaMuxer {
             outputBuffer.limit(bufferInfo.offset + bufferInfo.size);
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
-                Log.e(TAG, "isVideo " + isVideo + ", mVideoTrackIndex " + mVideoTrackIndex + ", mAudioTrackIndex " + mAudioTrackIndex +
+                Log.e(TAG, "timestamp " + bufferInfo.presentationTimeUs +  ", isVideo " + isVideo + ", mVideoTrackIndex " + mVideoTrackIndex + ", mAudioTrackIndex " + mAudioTrackIndex +
                     ", outputBuffer " + outputBuffer.toString() + ", bufferInfo " + bufferInfo.toString());
                 //try {
                     mMuxer.writeSampleData(isVideo ? mVideoTrackIndex : mAudioTrackIndex, outputBuffer, bufferInfo);

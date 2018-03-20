@@ -131,7 +131,7 @@ public final class CameraThread extends Thread {
     }
 
     //private void handleAudioData(byte[] data) {
-    private void handleAudioData(AVAudioCtrl.AudioFrameWithByteBuffer audioFrameWithByteBuffer) {
+    public void handleAudioData(AVAudioCtrl.AudioFrameWithByteBuffer audioFrameWithByteBuffer) {
         /*Message msg = Message.obtain();
         msg.what = AACEncodeConsumer.AUDIO_DATA;
         Bundle bundle = new Bundle();
@@ -144,7 +144,7 @@ public final class CameraThread extends Thread {
         audioFrameWithByteBuffer.data.get(audio);
         audioFrameWithByteBuffer.data.clear();
         if(mAacConsumer != null) {
-            mAacConsumer.encodeBytes(audio, audio.length);
+            mAacConsumer.setAudioData(audio, audio.length);
         }
     }
 

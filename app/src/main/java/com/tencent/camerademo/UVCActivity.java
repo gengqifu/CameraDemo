@@ -240,10 +240,12 @@ public class UVCActivity extends BaseActivity implements CameraView, SDKView{
                                 msg.setData(bundle);
                                 cameraThread.mHandler.sendMessage(msg);
                             }*/
-                            Message msg = Message.obtain();
+                            Log.e(TAG, "timestamp " + audioFrameWithByteBuffer.timeStamp);
+                            /*Message msg = Message.obtain();
                             msg.what = CameraThread.MSG_AUDIO_DATA;
                             msg.obj = audioFrameWithByteBuffer;
-                            cameraThread.mHandler.sendMessage(msg);
+                            cameraThread.mHandler.sendMessage(msg);*/
+                            cameraThread.handleAudioData(audioFrameWithByteBuffer);
                         }
                     }
                     return AVError.AV_OK;
