@@ -191,7 +191,7 @@ public class UVCService extends Service implements CameraViewForService, SDKView
         RecordParams params = new RecordParams();
         params.setRecordPath(videoPath);
         params.setRecordDuration(0);    // 设置为0，不分割保存
-        params.setVoiceClose(true);    // 不屏蔽声音
+        params.setVoiceClose(false);    // 不屏蔽声音
         msg.obj = params;
         cameraThread.mHandler.sendMessage(msg);
         ((AVAudioCtrl) ILiveSDK.getInstance().getAudioEngine().getAudioObj()).registAudioDataCallbackWithByteBuffer(
