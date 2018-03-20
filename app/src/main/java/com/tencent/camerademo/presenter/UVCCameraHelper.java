@@ -82,7 +82,7 @@ public class UVCCameraHelper {
     public UVCCameraHelper(Context context, CameraView view) {
         cameraView = view;
         usbMonitor = new USBMonitor(context, deviceConnectListener);
-        final List<DeviceFilter> filters = DeviceFilter.getDeviceFilters(cameraView.getActivity(), R.xml.device_filter);
+        final List<DeviceFilter> filters = DeviceFilter.getDeviceFilters(cameraView.getContext(), R.xml.device_filter);
         usbMonitor.setDeviceFilter(filters);
     }
 

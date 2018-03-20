@@ -1,6 +1,7 @@
 package com.tencent.camerademo;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.hardware.Camera;
 import android.os.Bundle;
@@ -26,6 +27,7 @@ import com.tencent.camerademo.presenter.SDKHelper;
 import com.tencent.camerademo.presenter.UVCCameraHelper;
 import com.tencent.camerademo.presenter.view.CameraView;
 import com.tencent.camerademo.presenter.view.SDKView;
+import com.tencent.camerademo.util.Constants;
 import com.tencent.ilivesdk.ILiveSDK;
 import com.tencent.ilivesdk.view.AVRootView;
 
@@ -128,7 +130,7 @@ public class UVCActivity extends BaseActivity implements CameraView, SDKView{
     }
 
     @Override
-    public Activity getActivity() {
+    public Context getContext() {
         return this;
     }
 
@@ -140,7 +142,7 @@ public class UVCActivity extends BaseActivity implements CameraView, SDKView{
         Message msg = Message.obtain();
         msg.what = CameraThread.MSG_CAPTURE_FRAME;
         Bundle bundle = new Bundle();
-        bundle.putByteArray("ba", data);
+        bundle.putByteArray(Constants.VIDEO_BYTE_ARRAY, data);
         msg.setData(bundle);
         cameraThread.mHandler.sendMessage(msg);
     }

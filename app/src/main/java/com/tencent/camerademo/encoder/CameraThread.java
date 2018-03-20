@@ -2,6 +2,7 @@ package com.tencent.camerademo.encoder;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.content.Context;
 import android.hardware.usb.UsbDevice;
 import android.media.MediaScannerConnection;
 import android.os.Build;
@@ -46,7 +47,7 @@ public final class CameraThread extends Thread {
 
     private final Object mSync = new Object();
     private final Class<? extends CameraHandler> mHandlerClass;
-    private final WeakReference<Activity> mWeakParent;
+    private final WeakReference<Context> mWeakParent;
     //private final WeakReference<CameraViewInterface> mWeakCameraView;
     private final int mEncoderType;
     //private final Set<AbstractUVCCameraHandler.CameraCallback> mCallbacks = new CopyOnWriteArraySet<AbstractUVCCameraHandler.CameraCallback>();
@@ -194,7 +195,7 @@ public final class CameraThread extends Thread {
      * bandwidthFactor
      */
     public CameraThread(final Class<? extends CameraHandler> clazz,
-                        final Activity parent,
+                        final Context parent,
                         final int encoderType, final int width, final int height, final int format,
                         final float bandwidthFactor, OnEncodeResultListener listener) {
 
@@ -534,7 +535,7 @@ public final class CameraThread extends Thread {
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
     public void handleUpdateMedia(final String path) {
         if (DEBUG) Log.v(TAG, "handleUpdateMedia:path=" + path);
-        final Activity parent = mWeakParent.get();
+        final Context parent = mWeakParent.get();
         final boolean released = (mHandler == null) || mHandler.mReleased;
         if (parent != null && parent.getApplicationContext() != null) {
             try {
@@ -543,7 +544,7 @@ public final class CameraThread extends Thread {
             } catch (final Exception e) {
                 Log.e(TAG, "handleUpdateMedia:", e);
             }
-            if (released || parent.isDestroyed())
+            if (released || (parent instanceof Activity) && ((Activity)parent).isDestroyed())
                 handleRelease();
         } else {
             Log.w(TAG, "MainActivity already destroyed");

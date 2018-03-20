@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#fff"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="3">
+
+        <FrameLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="3"
+            android:focusable="true"
+            android:focusableInTouchMode="true">
+
+            <com.tencent.ilivesdk.view.AVRootView
+                android:id="@+id/uvc_service_window_avrv"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+            <TextView
+                android:id="@+id/uvc_service_window_tv_log"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:textColor="@color/colorAccent" />
+        </FrameLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <EditText
+                android:id="@+id/uvc_service_window_et_account"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="用户名"
+                android:textColor="#000"
+                android:textColorHint="#333" />
+
+            <EditText
+                android:id="@+id/uvc_service_window_et_pwd"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="密码"
+                android:textColor="#000"
+                android:textColorHint="#333" />
+
+            <Button
+                android:id="@+id/uvc_service_window_btn_login"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="登录"
+                android:textColor="#fff" />
+
+            <EditText
+                android:id="@+id/uvc_service_window_et_roomid"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="房间号"
+                android:inputType="number"
+                android:textColor="#000"
+                android:textColorHint="#333" />
+
+            <Button
+                android:id="@+id/uvc_service_window_btn_enter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="创建房间"
+                android:textColor="#fff" />
+
+            <Button
+                android:id="@+id/uvc_service_window_btn_photo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="拍照"
+                android:textColor="#fff" />
+
+            <Button
+                android:id="@+id/uvc_service_window_btn_min"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="最小化"
+                android:textColor="#fff" />
+
+            <Button
+                android:id="@+id/uvc_service_window_btn_stop"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="停止录制"
+                android:textColor="#fff" />
+
+            <Button
+                android:id="@+id/uvc_service_window_btn_exit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="退出"
+                android:textColor="#fff" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <com.serenegiant.widget.UVCCameraTextureView
+            android:id="@+id/uvc_service_window_sv_camera0"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_margin="5dp"
+            android:layout_weight="1"
+            android:background="#000" />
+
+        <com.serenegiant.widget.UVCCameraTextureView
+            android:id="@+id/uvc_service_window_sv_camera1"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_margin="5dp"
+            android:layout_weight="1"
+            android:background="#000" />
+
+        <com.serenegiant.widget.UVCCameraTextureView
+            android:id="@+id/uvc_service_window_sv_camera2"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_margin="5dp"
+            android:layout_weight="1"
+            android:background="#000" />
+
+        <com.serenegiant.widget.UVCCameraTextureView
+            android:id="@+id/uvc_service_window_sv_camera3"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_margin="5dp"
+            android:layout_weight="1"
+            android:background="#000" />
+    </LinearLayout>
+
+</LinearLayout>

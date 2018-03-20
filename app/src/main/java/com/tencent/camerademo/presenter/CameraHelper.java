@@ -1,5 +1,6 @@
 package com.tencent.camerademo.presenter;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.ImageFormat;
 import android.hardware.Camera;
@@ -100,7 +101,7 @@ public class CameraHelper {
     private void setCameraDisplayOrientation (int cameraId, android.hardware.Camera camera) {
         android.hardware.Camera.CameraInfo info = new android.hardware.Camera.CameraInfo();
         android.hardware.Camera.getCameraInfo (cameraId , info);
-        int rotation = cameraView.getActivity().getWindowManager().getDefaultDisplay ().getRotation();
+        int rotation = ((Activity)cameraView.getContext()).getWindowManager().getDefaultDisplay ().getRotation();
         int degrees = 0;
         switch (rotation) {
             case Surface.ROTATION_0:
