@@ -112,11 +112,6 @@ public class MainActivity extends Activity implements CameraView, SDKView{
     }
 
     @Override
-    public void onCaptureFrame(ByteBuffer frame) {
-
-    }
-
-    @Override
     public void loginError(String module, int errCode, String strMsg) {
         Toast.makeText(this, "loginError->"+module+"|"+errCode+"|"+strMsg, Toast.LENGTH_SHORT).show();
     }

@@ -146,14 +146,6 @@ public class UVCActivity extends BaseActivity implements CameraView, SDKView{
     }
 
     @Override
-    public void onCaptureFrame(ByteBuffer frame) {
-        Message msg = Message.obtain();
-        msg.what = CameraThread.MSG_CAPTURE_FRAME;
-        msg.obj = frame;
-        cameraThread.mHandler.sendMessage(msg);
-    }
-
-    @Override
     public void loginError(String module, int errCode, String strMsg) {
         Toast.makeText(this, "loginError->"+module+"|"+errCode+"|"+strMsg, Toast.LENGTH_SHORT).show();
     }

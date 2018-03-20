@@ -12,5 +12,4 @@ public interface CameraView {
     Activity getActivity();
 
     void onCaptureFrameData(byte[] data, int length, int width, int heigth, int angle);
-    void onCaptureFrame(ByteBuffer frame);
 }
