@@ -340,6 +340,16 @@ public class UVCService extends Service implements CameraViewForService, SDKView
         if (mSDKHelper.isEnter()) {
             mSDKHelper.fillCameraData(data, length, width, heigth, angle);
         }
+        /*Message msg = Message.obtain();
+        msg.what = CameraThread.MSG_CAPTURE_FRAME;
+        Bundle bundle = new Bundle();
+        bundle.putByteArray(Constants.VIDEO_BYTE_ARRAY, data);
+        msg.setData(bundle);
+        cameraThread.mHandler.sendMessage(msg);*/
+    }
+
+    @Override
+    public void onCaptureRawFrameData(byte[] data) {
         Message msg = Message.obtain();
         msg.what = CameraThread.MSG_CAPTURE_FRAME;
         Bundle bundle = new Bundle();

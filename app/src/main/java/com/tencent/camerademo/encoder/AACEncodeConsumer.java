@@ -17,12 +17,19 @@ import android.util.Log;
 
 import com.tencent.av.sdk.AVAudioCtrl;
 
+import java.io.BufferedOutputStream;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.lang.ref.WeakReference;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.ShortBuffer;
+
+import static com.tencent.camerademo.encoder.FileUtils.ROOT_PATH;
 
 /**将PCM编码为AAC
  *
@@ -34,9 +41,9 @@ public class AACEncodeConsumer extends Thread{
     private static final String TAG = "TMPU";
     private static final String MIME_TYPE = "audio/mp4a-latm";
     private static final long TIMES_OUT = 1000;
-    private static final int SAMPLE_RATE = 48000;//8000;     // 采样率
-    private static final int BIT_RATE = 16000;       // 比特率
-    private static final int BUFFER_SIZE = 8192;//3840;//1920;     // 最小缓存
+    private static final int SAMPLE_RATE =  48000;//8000;     // 采样率
+    private static final int BIT_RATE = 1536000;//16000;       // 比特率
+    private static final int BUFFER_SIZE = 3840;//1920;     // 最小缓存
     private int outChannel = 1;
     private int bitRateForLame = 32;
     private int qaulityDegree = 7;
@@ -52,7 +59,7 @@ public class AACEncodeConsumer extends Thread{
     private long prevPresentationTimes = 0;
     private WeakReference<Mp4MediaMuxer> mMuxerRef;
     private MediaFormat newFormat;
-    final int millisPerframe = 1000 / 20;
+    final int millisPerframe = 1000 / 80;
     long lastPush = 0;
 
     /**
@@ -141,6 +148,19 @@ public class AACEncodeConsumer extends Thread{
             //initAudioRecord();
             initMediaCodec();
         }
+        /*String audioPath = ROOT_PATH  + "audio.pcm";
+        File file = new File(audioPath);
+        if (file.exists()) {
+            file.delete();
+            Log.e(TAG, "audio123 删除文件");
+        }
+        try {
+            file.createNewFile();
+            Log.e(TAG,"audio123 创建文件");
+        } catch (IOException e) {
+            Log.e(TAG,"audio123 未能创建");
+            throw new IllegalStateException("audio 未能创建" + file.toString());
+        }*/
         // 初始化音频文件参数
         byte[] mp3Buffer = new byte[1024];
 
@@ -156,6 +176,7 @@ public class AACEncodeConsumer extends Thread{
             if(readBytes > 0){
                 encodeBytes(audioBuffer,readBytes);
             }*/
+            Log.e(TAG, "thread " + Thread.currentThread().getName());
             encodeBytes();
         }
         // 停止音频采集、编码
@@ -163,9 +184,40 @@ public class AACEncodeConsumer extends Thread{
         //stopAudioRecord();
     }
 
+    /*
+     * 保存音频文件
+     */
+    private void saveAudioData(byte[] audioBuf) {
+        String audioPath = ROOT_PATH  + "audio.pcm";
+        File file = new File(audioPath);
+        /*if (file.exists())
+            file.delete();
+        Log.i(TAG,"删除文件");
+        try {
+            file.createNewFile();
+            Log.i(TAG,"创建文件");
+        } catch (IOException e) {
+            Log.i(TAG,"未能创建");
+            throw new IllegalStateException("未能创建" + file.toString());
+        }*/
+        try {
+            OutputStream os = new FileOutputStream(file, true);
+            BufferedOutputStream bos = new BufferedOutputStream(os);
+            DataOutputStream dos = new DataOutputStream(bos);
+            for (int i=0; i<audioBuf.length; i++) {
+                dos.write(audioBuf[i]);
+            }
+        } catch(FileNotFoundException e) {
+            Log.e(TAG, " audio123 File not found!");
+        } catch(IOException e) {
+            Log.e(TAG, "Record audio123 failed");
+        }
+    }
+
     public void setAudioData(byte[] audioBuf, int readBytes) {
         if (! isEncoderStart)
             return;
+        //saveAudioData(audioBuf);
         try {
             if (lastPush == 0) {
                 lastPush = System.currentTimeMillis();
@@ -173,14 +225,19 @@ public class AACEncodeConsumer extends Thread{
             long time = System.currentTimeMillis() - lastPush;
             if (time >= 0) {
                 time = millisPerframe - time;
-                if (time > 0)
+                if (time > 0) {
+                    Log.e(TAG, "thread " + Thread.currentThread().getName());
                     Thread.sleep(time / 2);
+                    Log.e(TAG, "thread " + Thread.currentThread().getName());
+                }
             }
             // 将数据写入编码器
             feedMediaCodecData(audioBuf, readBytes);
 
-            if (time > 0)
+            if (time > 0) {Log.e(TAG, "thread " + Thread.currentThread().getName());
                 Thread.sleep(time / 2);
+                Log.e(TAG, "thread " + Thread.currentThread().getName());Thread.sleep(time / 2);
+            }
             lastPush = System.currentTimeMillis();
         } catch (InterruptedException ex) {
             ex.printStackTrace();

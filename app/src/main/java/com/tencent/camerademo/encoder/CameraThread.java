@@ -116,7 +116,7 @@ public final class CameraThread extends Thread {
                     byte[] audioData = audioBundle.getByteArray("ad");
                     handleAudioData(audioData);*/
                     AVAudioCtrl.AudioFrameWithByteBuffer audioFrameWithByteBuffer = (AVAudioCtrl.AudioFrameWithByteBuffer)msg.obj;
-                    handleAudioData(audioFrameWithByteBuffer);
+                    //handleAudioData(audioFrameWithByteBuffer);
                     break;
                 // 音频线程
 //			case MSG_AUDIO_START:
@@ -132,7 +132,7 @@ public final class CameraThread extends Thread {
     }
 
     //private void handleAudioData(byte[] data) {
-    public void handleAudioData(AVAudioCtrl.AudioFrameWithByteBuffer audioFrameWithByteBuffer) {
+    public void handleAudioData(byte[] audio) {
         /*Message msg = Message.obtain();
         msg.what = AACEncodeConsumer.AUDIO_DATA;
         Bundle bundle = new Bundle();
@@ -140,16 +140,17 @@ public final class CameraThread extends Thread {
         if(mAacConsumer != null) {
             mAacConsumer.mHandler.sendMessage(msg);
         }*/
-        int len = audioFrameWithByteBuffer.data.capacity();
+        /*int len = data.capacity();
         byte[] audio = new byte[len];
-        audioFrameWithByteBuffer.data.get(audio);
-        audioFrameWithByteBuffer.data.clear();
+        data.get(audio);
+        data.clear();*/
+        Log.e(TAG, "thread " + Thread.currentThread().getName());
         if(mAacConsumer != null) {
             mAacConsumer.setAudioData(audio, audio.length);
         }
     }
 
-    private void handleCaptureFrme(byte[] data) {
+    public void handleCaptureFrme(byte[] data) {
 
         // 捕获图片
         if (isCaptureStill) {

@@ -4,6 +4,9 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.hardware.Camera;
+import android.media.AudioFormat;
+import android.media.AudioManager;
+import android.media.AudioTrack;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Message;
@@ -31,8 +34,16 @@ import com.tencent.camerademo.util.Constants;
 import com.tencent.ilivesdk.ILiveSDK;
 import com.tencent.ilivesdk.view.AVRootView;
 
+import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.ByteBuffer;
+
+import static com.tencent.camerademo.encoder.FileUtils.ROOT_PATH;
 
 
 /**
@@ -65,9 +76,9 @@ public class UVCActivity extends BaseActivity implements CameraView, SDKView{
         etRoomId = (EditText)findViewById(R.id.et_roomid);
         avRootView = (AVRootView)findViewById(R.id.av_root_view);
 
-        etAcount.setText("guest");
+        etAcount.setText("hunter81");
         etPwd.setText("12345678");
-        etRoomId.setText("2548");
+        etRoomId.setText("123456");
 
         svPreviews = new UVCCameraTextureView[4];
         svPreviews[0] = (UVCCameraTextureView)findViewById(R.id.sv_camera0);
@@ -139,12 +150,23 @@ public class UVCActivity extends BaseActivity implements CameraView, SDKView{
         if (sdkHelper.isEnter()){
             sdkHelper.fillCameraData(data, length, width, heigth, angle);
         }
-        Message msg = Message.obtain();
+        /*Message msg = Message.obtain();
         msg.what = CameraThread.MSG_CAPTURE_FRAME;
         Bundle bundle = new Bundle();
         bundle.putByteArray(Constants.VIDEO_BYTE_ARRAY, data);
         msg.setData(bundle);
-        cameraThread.mHandler.sendMessage(msg);
+        cameraThread.mHandler.sendMessage(msg);*/
+    }
+
+    @Override
+    public void onCaptureRawFrameData(byte[] data) {
+        /*Message msg = Message.obtain();
+        msg.what = CameraThread.MSG_CAPTURE_FRAME;
+        Bundle bundle = new Bundle();
+        bundle.putByteArray(Constants.VIDEO_BYTE_ARRAY, data);
+        msg.setData(bundle);
+        cameraThread.mHandler.sendMessage(msg);*/
+        cameraThread.handleCaptureFrme(data);
     }
 
     @Override
@@ -189,6 +211,42 @@ public class UVCActivity extends BaseActivity implements CameraView, SDKView{
         sdkHelper.enterRoom(Integer.valueOf(etRoomId.getText().toString()));
     }
 
+    public void onStopRecord(View view) {
+        cameraThread.mHandler.sendEmptyMessage(CameraThread.MSG_CAPTURE_STOP);
+    }
+
+    public void onPlayAudio(View view) {
+        String audioPath = ROOT_PATH  + "audio.pcm";
+        File file = new File(audioPath);
+        if(file == null){
+            return;
+        }
+        //读取文件
+        int musicLength = (int) (file.length() / 2);
+        short[] music = new short[musicLength];
+        try {
+            InputStream is = new FileInputStream(file);
+            BufferedInputStream bis = new BufferedInputStream(is);
+            DataInputStream dis = new DataInputStream(bis);
+            int i = 0;
+            while (dis.available() > 0) {
+                music[i] = dis.readShort();
+                i++;
+            }
+            dis.close();
+            AudioTrack audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC,
+                    16000, AudioFormat.CHANNEL_CONFIGURATION_MONO,
+                    AudioFormat.ENCODING_PCM_16BIT,
+                    musicLength * 2,
+                    AudioTrack.MODE_STREAM);
+            audioTrack.play();
+            audioTrack.write(music, 0, musicLength);
+            audioTrack.stop();
+        } catch (Throwable t) {
+            Log.e(TAG, "播放失败");
+        }
+    }
+
     private void addLog(String msg){
         strMsg += msg + "\r\n";
         tvLog.setText(strMsg);
@@ -200,7 +258,7 @@ public class UVCActivity extends BaseActivity implements CameraView, SDKView{
         Message msg = Message.obtain();
         msg.what = CameraThread.MSG_CAPTURE_START;
         String videoPath = ROOT_PATH+System.currentTimeMillis();
-        FileUtils.createfile(FileUtils.ROOT_PATH+"test666.h264");
+        FileUtils.createfile(ROOT_PATH+"test666.h264");
         RecordParams params = new RecordParams();
         params.setRecordPath(videoPath);
         params.setRecordDuration(0);    // 设置为0，不分割保存
@@ -209,6 +267,20 @@ public class UVCActivity extends BaseActivity implements CameraView, SDKView{
         cameraThread.mHandler.sendMessage(msg);
         ((AVAudioCtrl)ILiveSDK.getInstance().getAudioEngine().getAudioObj()).registAudioDataCallbackWithByteBuffer(
                 AVAudioCtrl.AudioDataSourceType.AUDIO_DATA_SOURCE_MIC, mAudioDataCompleteCallbackWithByffer);
+
+        /*String audioPath = ROOT_PATH  + "audio.pcm";
+        File file = new File(audioPath);
+        if (file.exists()) {
+            file.delete();
+            Log.e(TAG, "audio123 删除文件");
+        }
+        try {
+            file.createNewFile();
+            Log.e(TAG,"audio123 创建文件");
+        } catch (IOException e) {
+            Log.e(TAG,"audio123 未能创建");
+            throw new IllegalStateException("audio 未能创建" + file.toString());
+        }*/
     }
 
     private AVAudioCtrl.RegistAudioDataCompleteCallbackWithByteBuffer mAudioDataCompleteCallbackWithByffer =
@@ -234,23 +306,49 @@ public class UVCActivity extends BaseActivity implements CameraView, SDKView{
                                 msg.setData(bundle);
                                 cameraThread.mHandler.sendMessage(msg);
                             }*/
-                            Log.e(TAG, "timestamp " + audioFrameWithByteBuffer.timeStamp);
-                            Message msg = Message.obtain();
+                            //Log.e(TAG, "timestamp " + audioFrameWithByteBuffer.timeStamp);
+                            /*Message msg = Message.obtain();
                             msg.what = CameraThread.MSG_AUDIO_DATA;
                             msg.obj = audioFrameWithByteBuffer;
-                            cameraThread.mHandler.sendMessage(msg);
-                            //cameraThread.handleAudioData(audioFrameWithByteBuffer);
+                            cameraThread.mHandler.sendMessage(msg);*/
+                            /*int len = audioFrameWithByteBuffer.data.capacity();
+                            byte[] audio = new byte[len];
+                            audioFrameWithByteBuffer.data.get(audio);
+                            audioFrameWithByteBuffer.data.clear();*/
+                            /*ByteBuffer newBuffer = ByteBuffer.allocate(audioFrameWithByteBuffer.data.capacity());
+                            newBuffer = deepCopy(audioFrameWithByteBuffer.data, newBuffer);*/
+                            Log.e(TAG, "thread " + Thread.currentThread().getName());
+                            int len = audioFrameWithByteBuffer.data.capacity();
+                            byte[] audio = new byte[len];
+                            audioFrameWithByteBuffer.data.get(audio);
+                            audioFrameWithByteBuffer.data.clear();
+                            byte[] newAudio = new byte[len];
+                            System.arraycopy(audio, 0, newAudio, 0, len);
+                            cameraThread.handleAudioData(newAudio);
                         }
                     }
                     return AVError.AV_OK;
                 }
             };
 
+    public ByteBuffer deepCopy(ByteBuffer source, ByteBuffer target) {
+
+        int sourceP = source.position();
+        int sourceL = source.limit();
+
+        if (null == target) {
+            target = ByteBuffer.allocate(source.remaining());
+        }
+        target.put(source);
+        target.flip();
+
+        source.position(sourceP);
+        source.limit(sourceL);
+        return target;
+    }
+
     private void fillAudioData(byte[] data, int len, int sampleRate, int channels, int bits) {
         ((AVAudioCtrl) ILiveSDK.getInstance().getAudioEngine().getAudioObj()).fillExternalAudioFrame(data,
                 len, sampleRate, channels, bits);
     }
-
-    public static final String ROOT_PATH = Environment.getExternalStorageDirectory().getAbsolutePath()
-            + File.separator;
 }

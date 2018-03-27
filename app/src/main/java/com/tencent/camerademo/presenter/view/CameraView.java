@@ -14,4 +14,5 @@ public interface CameraView {
     Context getContext();
 
     void onCaptureFrameData(byte[] data, int length, int width, int heigth, int angle);
+    void onCaptureRawFrameData(byte[] data);
 }
