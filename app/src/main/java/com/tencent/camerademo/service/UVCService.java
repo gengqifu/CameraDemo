@@ -207,11 +207,14 @@ public class UVCService extends Service implements CameraViewForService, SDKView
                             /*************************************************
                              将要混入的音频数据写入audioFrameWithByteBuffer中
                              *************************************************/
-                            Log.e(TAG, "timestamp " + audioFrameWithByteBuffer.timeStamp);
-                            Message msg = Message.obtain();
-                            msg.what = CameraThread.MSG_AUDIO_DATA;
-                            msg.obj = audioFrameWithByteBuffer;
-                            cameraThread.mHandler.sendMessage(msg);
+                            Log.e(TAG, "thread " + Thread.currentThread().getName());
+                            int len = audioFrameWithByteBuffer.data.capacity();
+                            byte[] audio = new byte[len];
+                            audioFrameWithByteBuffer.data.get(audio);
+                            audioFrameWithByteBuffer.data.clear();
+                            byte[] newAudio = new byte[len];
+                            System.arraycopy(audio, 0, newAudio, 0, len);
+                            cameraThread.handleAudioData(newAudio);
                         }
                     }
                     return AVError.AV_OK;
@@ -340,22 +343,11 @@ public class UVCService extends Service implements CameraViewForService, SDKView
         if (mSDKHelper.isEnter()) {
             mSDKHelper.fillCameraData(data, length, width, heigth, angle);
         }
-        /*Message msg = Message.obtain();
-        msg.what = CameraThread.MSG_CAPTURE_FRAME;
-        Bundle bundle = new Bundle();
-        bundle.putByteArray(Constants.VIDEO_BYTE_ARRAY, data);
-        msg.setData(bundle);
-        cameraThread.mHandler.sendMessage(msg);*/
     }
 
     @Override
     public void onCaptureRawFrameData(byte[] data) {
-        Message msg = Message.obtain();
-        msg.what = CameraThread.MSG_CAPTURE_FRAME;
-        Bundle bundle = new Bundle();
-        bundle.putByteArray(Constants.VIDEO_BYTE_ARRAY, data);
-        msg.setData(bundle);
-        cameraThread.mHandler.sendMessage(msg);
+        cameraThread.handleCaptureFrme(data);
     }
 
     @Override

@@ -176,7 +176,6 @@ public class AACEncodeConsumer extends Thread{
             if(readBytes > 0){
                 encodeBytes(audioBuffer,readBytes);
             }*/
-            Log.e(TAG, "thread " + Thread.currentThread().getName());
             encodeBytes();
         }
         // 停止音频采集、编码
@@ -226,17 +225,14 @@ public class AACEncodeConsumer extends Thread{
             if (time >= 0) {
                 time = millisPerframe - time;
                 if (time > 0) {
-                    Log.e(TAG, "thread " + Thread.currentThread().getName());
                     Thread.sleep(time / 2);
-                    Log.e(TAG, "thread " + Thread.currentThread().getName());
                 }
             }
             // 将数据写入编码器
             feedMediaCodecData(audioBuf, readBytes);
 
-            if (time > 0) {Log.e(TAG, "thread " + Thread.currentThread().getName());
+            if (time > 0) {
                 Thread.sleep(time / 2);
-                Log.e(TAG, "thread " + Thread.currentThread().getName());Thread.sleep(time / 2);
             }
             lastPush = System.currentTimeMillis();
         } catch (InterruptedException ex) {

@@ -12,4 +12,6 @@ public interface CameraViewForService {
     void onCaptureFrameData(byte[] data, int length, int width, int heigth, int angle);
 
     void postDelay(Runnable runnable, long time);
+
+    void onCaptureRawFrameData(byte[] data);
 }

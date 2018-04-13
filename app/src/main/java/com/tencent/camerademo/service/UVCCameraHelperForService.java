@@ -249,6 +249,7 @@ public class UVCCameraHelperForService {
             byte[] data = new byte[frame.capacity()];
             byte[] i420Data = new byte[frame.capacity()];
             frame.get(data, 0, data.length);
+            cameraView.onCaptureRawFrameData(data);
             swapNV21toI420(data, i420Data, UVCCamera.DEFAULT_PREVIEW_WIDTH, UVCCamera.DEFAULT_PREVIEW_HEIGHT);
             cameraView.onCaptureFrameData(i420Data, i420Data.length,
                     UVCCamera.DEFAULT_PREVIEW_WIDTH, UVCCamera.DEFAULT_PREVIEW_HEIGHT, 0);

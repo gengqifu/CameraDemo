@@ -144,7 +144,6 @@ public final class CameraThread extends Thread {
         byte[] audio = new byte[len];
         data.get(audio);
         data.clear();*/
-        Log.e(TAG, "thread " + Thread.currentThread().getName());
         if(mAacConsumer != null) {
             mAacConsumer.setAudioData(audio, audio.length);
         }
